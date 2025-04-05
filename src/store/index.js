@@ -101,6 +101,12 @@ const addPost = (type, name) => {
     state.posts[type] = []
   }
   
+  // 检查是否存在重名的评分对象
+  const isDuplicate = state.posts[type].some(post => post.name.toLowerCase() === name.toLowerCase());
+  if (isDuplicate) {
+    return { success: false, message: '该类别下已存在同名评分对象' };
+  }
+  
   const newId = state.posts[type].length > 0 
     ? Math.max(...state.posts[type].map(p => p.id)) + 1 
     : 1
@@ -124,6 +130,7 @@ const addPost = (type, name) => {
   }
   
   saveData()
+  return { success: true, message: '添加成功' };
 }
 
 // 添加评论和评分

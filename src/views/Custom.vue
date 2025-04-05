@@ -100,11 +100,15 @@ export default {
       this.$refs.addForm.validate(valid => {
         if (valid) {
           // 添加新对象
-          store.addPost(this.type, this.newPost.name);
-          this.$message.success(`${this.type}添加成功`);
-          this.showAddForm = false;
-          this.newPost.name = '';
-          this.loadCustomPosts(); // 重新加载数据
+          const result = store.addPost(this.type, this.newPost.name);
+          if (result.success) {
+            this.$message.success(`${this.type}添加成功`);
+            this.showAddForm = false;
+            this.newPost.name = '';
+            this.loadCustomPosts(); // 重新加载数据
+          } else {
+            this.$message.error(result.message);
+          }
         } else {
           return false;
         }

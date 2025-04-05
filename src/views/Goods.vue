@@ -64,11 +64,15 @@ export default {
       this.$refs.addForm.validate(valid => {
         if (valid) {
           // 添加新生活用品
-          store.addPost('goods', this.newPost.name);
-          this.$message.success('生活用品添加成功');
-          this.showAddForm = false;
-          this.newPost.name = '';
-          this.loadGoods(); // 重新加载数据
+          const result = store.addPost('goods', this.newPost.name);
+          if (result.success) {
+            this.$message.success('生活用品添加成功');
+            this.showAddForm = false;
+            this.newPost.name = '';
+            this.loadGoods(); // 重新加载数据
+          } else {
+            this.$message.error(result.message);
+          }
         } else {
           return false;
         }

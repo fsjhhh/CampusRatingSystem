@@ -64,11 +64,15 @@ export default {
       this.$refs.addForm.validate(valid => {
         if (valid) {
           // 添加新课程
-          store.addPost('course', this.newPost.name);
-          this.$message.success('课程添加成功');
-          this.showAddForm = false;
-          this.newPost.name = '';
-          this.loadCourses(); // 重新加载数据
+          const result = store.addPost('course', this.newPost.name);
+          if (result.success) {
+            this.$message.success('课程添加成功');
+            this.showAddForm = false;
+            this.newPost.name = '';
+            this.loadCourses(); // 重新加载数据
+          } else {
+            this.$message.error(result.message);
+          }
         } else {
           return false;
         }
