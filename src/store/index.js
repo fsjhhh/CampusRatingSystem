@@ -150,6 +150,35 @@ const addReview = (type, id, rating, comment, username = '匿名用户') => {
   }
 }
 
+// 删除特定帖子
+const deletePost = (type, id) => {
+  if (state.posts[type]) {
+    const index = state.posts[type].findIndex(p => p.id === id);
+    if (index !== -1) {
+      state.posts[type].splice(index, 1);
+      
+      // 更新类别元数据
+      updateCategoryMeta();
+      
+      saveData();
+      return true;
+    }
+  }
+  return false;
+}
+
+// 删除整个类别
+const deleteCategory = (type) => {
+  if (state.posts[type] && !['course', 'food', 'goods'].includes(type)) {
+    delete state.posts[type];
+    delete state.categoryMeta[type];
+    
+    saveData();
+    return true;
+  }
+  return false;
+}
+
 // 获取特定类型的所有帖子
 const getPostsByType = (type) => {
   return state.posts[type] || []
@@ -302,5 +331,7 @@ export default {
   getAllCategories,
   getCategoriesByNewest,
   getCategoriesByMostReviews,
-  getCategoriesByHighestRating
+  getCategoriesByHighestRating,
+  deletePost,
+  deleteCategory
 }

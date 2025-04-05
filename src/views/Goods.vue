@@ -21,7 +21,7 @@
       </el-form>
     </el-dialog>
     
-    <post-list :posts="goods" type="goods" />
+    <post-list :posts="goods" type="goods" @refresh="loadGoods" />
     
     <div class="empty-state" v-if="goods.length === 0">
       <el-empty description="暂无生活用品数据" />

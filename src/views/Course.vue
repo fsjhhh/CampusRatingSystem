@@ -21,7 +21,7 @@
       </el-form>
     </el-dialog>
     
-    <post-list :posts="courses" type="course" />
+    <post-list :posts="courses" type="course" @refresh="loadCourses" />
     
     <div class="empty-state" v-if="courses.length === 0">
       <el-empty description="暂无课程数据" />

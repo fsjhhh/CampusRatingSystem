@@ -4,9 +4,14 @@
       <div class="page-header">
         <h1>{{ type }} 评分</h1>
         <p>在这里查看和评价自定义分类的对象</p>
-        <el-button type="primary" @click="showAddForm = true" class="add-button">
-          <i class="el-icon-plus"></i> 添加新{{ type }}
-        </el-button>
+        <div class="header-actions">
+          <el-button type="primary" @click="showAddForm = true" class="add-button">
+            <i class="el-icon-plus"></i> 添加新{{ type }}
+          </el-button>
+          <el-button type="danger" @click="confirmDeleteCategory" class="delete-button">
+            <i class="el-icon-delete"></i> 删除整个分类
+          </el-button>
+        </div>
       </div>
       
       <!-- 添加新对象表单 -->
@@ -22,7 +27,21 @@
         </el-form>
       </el-dialog>
       
-      <post-list :posts="posts" :type="type" />
+      <!-- 删除分类确认对话框 -->
+      <el-dialog
+        title="确认删除分类"
+        v-model="deleteCategoryDialogVisible"
+        width="30%">
+        <span>确定要删除整个"{{ type }}"分类吗？该操作将删除该分类下的所有对象和评价，且无法恢复。</span>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="deleteCategoryDialogVisible = false">取消</el-button>
+            <el-button type="danger" @click="deleteCategory">确认删除</el-button>
+          </span>
+        </template>
+      </el-dialog>
+      
+      <post-list :posts="posts" :type="type" @refresh="loadCustomPosts" />
       
       <div class="empty-state" v-if="posts.length === 0">
         <el-empty :description="`暂无${type}数据`" />
@@ -48,6 +67,7 @@ export default {
       type: '',
       posts: [],
       showAddForm: false,
+      deleteCategoryDialogVisible: false,
       newPost: {
         name: ''
       },
@@ -89,6 +109,22 @@ export default {
           return false;
         }
       });
+    },
+    confirmDeleteCategory() {
+      this.deleteCategoryDialogVisible = true;
+    },
+    deleteCategory() {
+      // 只允许删除自定义分类，默认分类不允许删除
+      const result = store.deleteCategory(this.type);
+      if (result) {
+        this.$message.success(`分类"${this.type}"删除成功`);
+        this.deleteCategoryDialogVisible = false;
+        // 重定向到首页
+        this.$router.push('/');
+      } else {
+        this.$message.error('无法删除默认分类');
+        this.deleteCategoryDialogVisible = false;
+      }
     }
   }
 }
@@ -111,7 +147,14 @@ export default {
   margin-bottom: 10px;
 }
 
-.add-button {
+.header-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.add-button, .delete-button {
   margin-top: 15px;
 }
 
