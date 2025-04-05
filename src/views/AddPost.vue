@@ -98,20 +98,24 @@ export default {
           }
           
           // 添加评分对象
-          store.addPost(type, this.form.name);
+          const result = store.addPost(type, this.form.name);
           
-          this.$message.success('添加成功');
-          this.resetForm();
-          
-          // 如果不是自定义类型，跳转到对应类型页面
-          if (this.form.type !== 'custom') {
-            const routeMap = {
-              course: '/course',
-              food: '/food',
-              goods: '/goods'
-            };
+          if (result.success) {
+            this.$message.success('添加成功');
+            this.resetForm();
             
-            this.$router.push(routeMap[this.form.type]);
+            // 如果不是自定义类型，跳转到对应类型页面
+            if (this.form.type !== 'custom') {
+              const routeMap = {
+                course: '/course',
+                food: '/food',
+                goods: '/goods'
+              };
+              
+              this.$router.push(routeMap[this.form.type]);
+            }
+          } else {
+            this.$message.error(result.message);
           }
         } else {
           return false;
