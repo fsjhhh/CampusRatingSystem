@@ -3,20 +3,42 @@ import { reactive } from 'vue'
 // 初始数据
 const initialPosts = {
   course: [
-    { id: 1, name: '语文', avgRating: 0, reviews: [] },
-    { id: 2, name: '数学', avgRating: 0, reviews: [] },
-    { id: 3, name: '英语', avgRating: 0, reviews: [] }
+    { id: 1, name: '语文', avgRating: 0, reviews: [], createdAt: new Date('2025-03-01').toISOString() },
+    { id: 2, name: '数学', avgRating: 0, reviews: [], createdAt: new Date('2025-03-05').toISOString() },
+    { id: 3, name: '英语', avgRating: 0, reviews: [], createdAt: new Date('2025-03-10').toISOString() }
   ],
   food: [
-    { id: 1, name: '食堂一楼', avgRating: 0, reviews: [] },
-    { id: 2, name: '食堂二楼', avgRating: 0, reviews: [] },
-    { id: 3, name: '校外外卖', avgRating: 0, reviews: [] }
+    { id: 1, name: '食堂一楼', avgRating: 0, reviews: [], createdAt: new Date('2025-03-15').toISOString() },
+    { id: 2, name: '食堂二楼', avgRating: 0, reviews: [], createdAt: new Date('2025-03-20').toISOString() },
+    { id: 3, name: '校外外卖', avgRating: 0, reviews: [], createdAt: new Date('2025-03-25').toISOString() }
   ],
   goods: [
-    { id: 1, name: '文具店', avgRating: 0, reviews: [] },
-    { id: 2, name: '超市', avgRating: 0, reviews: [] },
-    { id: 3, name: '日用品店', avgRating: 0, reviews: [] }
+    { id: 1, name: '文具店', avgRating: 0, reviews: [], createdAt: new Date('2025-03-28').toISOString() },
+    { id: 2, name: '超市', avgRating: 0, reviews: [], createdAt: new Date('2025-04-01').toISOString() },
+    { id: 3, name: '日用品店', avgRating: 0, reviews: [], createdAt: new Date('2025-04-03').toISOString() }
   ]
+}
+
+// 帖子类别的元数据
+const initialCategoryMeta = {
+  course: { 
+    name: '课程', 
+    createdAt: new Date('2025-02-20').toISOString(),
+    totalReviews: 0,
+    avgRating: 0
+  },
+  food: { 
+    name: '外卖', 
+    createdAt: new Date('2025-02-22').toISOString(),
+    totalReviews: 0,
+    avgRating: 0
+  },
+  goods: { 
+    name: '生活用品', 
+    createdAt: new Date('2025-02-25').toISOString(),
+    totalReviews: 0,
+    avgRating: 0
+  }
 }
 
 // 从本地存储加载数据或使用初始数据
@@ -25,14 +47,52 @@ const loadData = () => {
   return savedData ? JSON.parse(savedData) : initialPosts
 }
 
+// 从本地存储加载类别元数据或使用初始数据
+const loadCategoryMeta = () => {
+  const savedMeta = localStorage.getItem('campusRatingMeta')
+  return savedMeta ? JSON.parse(savedMeta) : initialCategoryMeta
+}
+
 // 创建响应式状态
 const state = reactive({
-  posts: loadData()
+  posts: loadData(),
+  categoryMeta: loadCategoryMeta()
 })
 
 // 保存数据到本地存储
 const saveData = () => {
   localStorage.setItem('campusRating', JSON.stringify(state.posts))
+  localStorage.setItem('campusRatingMeta', JSON.stringify(state.categoryMeta))
+}
+
+// 更新类别元数据
+const updateCategoryMeta = () => {
+  Object.keys(state.posts).forEach(type => {
+    const posts = state.posts[type]
+    let totalRating = 0
+    let totalReviews = 0
+    
+    posts.forEach(post => {
+      totalReviews += post.reviews.length
+      post.reviews.forEach(review => {
+        totalRating += review.rating
+      })
+    })
+    
+    if (!state.categoryMeta[type]) {
+      state.categoryMeta[type] = {
+        name: type,
+        createdAt: new Date().toISOString(),
+        totalReviews: 0,
+        avgRating: 0
+      }
+    }
+    
+    state.categoryMeta[type].totalReviews = totalReviews
+    state.categoryMeta[type].avgRating = totalReviews > 0 ? totalRating / totalReviews : 0
+  })
+  
+  saveData()
 }
 
 // 添加新帖子
@@ -49,8 +109,19 @@ const addPost = (type, name) => {
     id: newId,
     name,
     avgRating: 0,
-    reviews: []
+    reviews: [],
+    createdAt: new Date().toISOString()
   })
+  
+  // 如果是新类别，添加元数据
+  if (!state.categoryMeta[type]) {
+    state.categoryMeta[type] = {
+      name: type,
+      createdAt: new Date().toISOString(),
+      totalReviews: 0,
+      avgRating: 0
+    }
+  }
   
   saveData()
 }
@@ -72,6 +143,9 @@ const addReview = (type, id, rating, comment, username = '匿名用户') => {
     const totalRating = post.reviews.reduce((sum, review) => sum + review.rating, 0)
     post.avgRating = totalRating / post.reviews.length
     
+    // 更新类别元数据
+    updateCategoryMeta()
+    
     saveData()
   }
 }
@@ -90,11 +164,128 @@ const getPostById = (type, id) => {
 const addPostType = (type) => {
   if (!state.posts[type]) {
     state.posts[type] = []
+    
+    state.categoryMeta[type] = {
+      name: type,
+      createdAt: new Date().toISOString(),
+      totalReviews: 0,
+      avgRating: 0
+    }
+    
     saveData()
     return true
   }
   return false
 }
+
+// 获取所有帖子的数量
+const getPostsCount = () => {
+  let count = 0
+  Object.values(state.posts).forEach(posts => {
+    count += posts.length
+  })
+  return count
+}
+
+// 获取所有评论的数量
+const getReviewsCount = () => {
+  let count = 0
+  Object.values(state.posts).forEach(posts => {
+    posts.forEach(post => {
+      count += post.reviews.length
+    })
+  })
+  return count
+}
+
+// 获取按最新时间排序的所有帖子
+const getPostsByNewest = (limit = 3) => {
+  const allPosts = []
+  
+  Object.entries(state.posts).forEach(([type, posts]) => {
+    posts.forEach(post => {
+      allPosts.push({
+        ...post,
+        type
+      })
+    })
+  })
+  
+  return allPosts
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, limit)
+}
+
+// 获取按评论数量排序的所有帖子
+const getPostsByMostReviews = (limit = 3) => {
+  const allPosts = []
+  
+  Object.entries(state.posts).forEach(([type, posts]) => {
+    posts.forEach(post => {
+      allPosts.push({
+        ...post,
+        type
+      })
+    })
+  })
+  
+  return allPosts
+    .sort((a, b) => b.reviews.length - a.reviews.length)
+    .slice(0, limit)
+}
+
+// 获取按平均评分排序的所有帖子
+const getPostsByHighestRating = (limit = 3) => {
+  const allPosts = []
+  
+  Object.entries(state.posts).forEach(([type, posts]) => {
+    posts.forEach(post => {
+      allPosts.push({
+        ...post,
+        type
+      })
+    })
+  })
+  
+  return allPosts
+    .filter(post => post.reviews.length > 0) // 只包含有评论的帖子
+    .sort((a, b) => b.avgRating - a.avgRating)
+    .slice(0, limit)
+}
+
+// 获取所有帖子类别
+const getAllCategories = () => {
+  return Object.keys(state.posts).map(type => ({
+    type,
+    ...state.categoryMeta[type],
+    count: state.posts[type].length
+  }))
+}
+
+// 获取按最新创建时间排序的帖子类别
+const getCategoriesByNewest = (limit = 3) => {
+  return getAllCategories()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, limit)
+}
+
+// 获取按评论数量排序的帖子类别
+const getCategoriesByMostReviews = (limit = 3) => {
+  return getAllCategories()
+    .sort((a, b) => b.totalReviews - a.totalReviews)
+    .slice(0, limit)
+}
+
+// 获取按平均评分排序的帖子类别
+const getCategoriesByHighestRating = (limit = 3) => {
+  return getAllCategories()
+    .filter(category => category.totalReviews > 0)
+    .sort((a, b) => b.avgRating - a.avgRating)
+    .slice(0, limit)
+}
+
+// 初始化时更新所有类别元数据
+updateCategoryMeta()
 
 export default {
   state,
@@ -102,5 +293,14 @@ export default {
   addReview,
   getPostsByType,
   getPostById,
-  addPostType
+  addPostType,
+  getPostsCount,
+  getReviewsCount,
+  getPostsByNewest,
+  getPostsByMostReviews,
+  getPostsByHighestRating,
+  getAllCategories,
+  getCategoriesByNewest,
+  getCategoriesByMostReviews,
+  getCategoriesByHighestRating
 }
