@@ -3,10 +3,10 @@
     <div v-if="type" class="page-content">
       <div class="page-header">
         <h1>{{ type }} 评分</h1>
-        <p>在这里查看和评价自定义分类的对象</p>
+        <p>在这里查看和评价自定义分类的帖子</p>
         <div class="header-actions">
           <el-button type="primary" @click="showAddForm = true" class="add-button">
-            <i class="el-icon-plus"></i> 添加新{{ type }}
+            <i class="el-icon-plus"></i> 添加新{{ type }}帖子
           </el-button>
           <el-button type="danger" @click="confirmDeleteCategory" class="delete-button">
             <i class="el-icon-delete"></i> 删除整个分类
@@ -15,7 +15,7 @@
       </div>
       
       <!-- 添加新对象表单 -->
-      <el-dialog :title="`添加新${type}`" v-model="showAddForm" width="500px">
+      <el-dialog :title="`添加新${type}帖子`" v-model="showAddForm" width="500px">
         <el-form :model="newPost" :rules="rules" ref="addForm" label-width="100px">
           <el-form-item :label="`${type}名称`" prop="name">
             <el-input v-model="newPost.name" :placeholder="`请输入${type}名称`"></el-input>
@@ -32,7 +32,7 @@
         title="确认删除分类"
         v-model="deleteCategoryDialogVisible"
         width="30%">
-        <span>确定要删除整个"{{ type }}"分类吗？该操作将删除该分类下的所有对象和评价，且无法恢复。</span>
+        <span>确定要删除整个"{{ type }}"分类吗？该操作将删除该分类下的所有帖子和评价，且无法恢复。</span>
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="deleteCategoryDialogVisible = false">取消</el-button>
@@ -45,7 +45,7 @@
       
       <div class="empty-state" v-if="posts.length === 0">
         <el-empty :description="`暂无${type}数据`" />
-        <el-button type="primary" @click="showAddForm = true">添加新{{ type }}</el-button>
+        <el-button type="primary" @click="showAddForm = true">添加新{{ type }}帖子</el-button>
       </div>
     </div>
     

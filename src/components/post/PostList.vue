@@ -1,36 +1,36 @@
 <template>
   <div class="post-list">
-    <el-card class="post-card" v-for="post in posts" :key="post.id" shadow="hover">
-      <div class="post-info">
-        <h3>{{ post.name }}</h3>
-        <div class="rating-display">
-          <div class="stars">
-            <el-rate
-              v-model="post.avgRating"
-              disabled
-              show-score
-              text-color="#ff9900"
-              score-template="{value} 分"
-            ></el-rate>
-          </div>
-          <div class="review-count">
-            {{ post.reviews.length }} 条评价
-          </div>
-        </div>
-      </div>
-      <div class="buttons">
-        <el-button type="primary" @click="viewDetails(post.id)">查看详情</el-button>
-        <el-button type="success" @click="ratePost(post.id)">评价</el-button>
-        <el-button type="danger" @click="confirmDelete(post.id)">删除</el-button>
-      </div>
-    </el-card>
-    
+    <div v-if="posts.length > 0">
+      <el-row :gutter="20">
+        <el-col :xs="24" :sm="8" v-for="(post, index) in posts" :key="`${type}-${post.id}`">
+          <el-card shadow="hover" class="post-card">
+            <div class="post-title">{{ post.name }}</div>
+            <div class="post-rating">
+              <span class="rating-label">平均评分：</span>
+              <el-rate v-model="post.avgRating" disabled></el-rate>
+              <span class="rating-value">{{ post.avgRating.toFixed(1) }}</span>
+            </div>
+            <div class="post-reviews">
+              <span>{{ post.reviews.length }} 条评价</span>
+            </div>
+            <div class="post-actions">
+              <el-button type="primary" size="small" @click="viewDetail(post.id)">查看详情</el-button>
+              <el-button type="danger" size="small" @click="confirmDelete(post.id, post.name)">删除</el-button>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+    <div v-else class="empty-message">
+      <el-empty description="暂无帖子，请添加新的评分帖子"></el-empty>
+    </div>
+
     <!-- 删除确认对话框 -->
     <el-dialog
       title="确认删除"
       v-model="deleteDialogVisible"
       width="30%">
-      <span>确定要删除这个评分对象吗？该操作将无法恢复。</span>
+      <span>确定要删除帖子"{{ postToDelete.name }}"吗？该操作无法恢复。</span>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="deleteDialogVisible = false">取消</el-button>
@@ -59,31 +59,31 @@ export default {
   data() {
     return {
       deleteDialogVisible: false,
-      postIdToDelete: null
+      postToDelete: {
+        id: null,
+        name: ''
+      }
     }
   },
   methods: {
-    viewDetails(id) {
+    viewDetail(id) {
       this.$router.push(`/detail/${this.type}/${id}`);
     },
-    ratePost(id) {
-      this.$router.push(`/detail/${this.type}/${id}?rate=true`);
-    },
-    confirmDelete(id) {
-      this.postIdToDelete = id;
+    confirmDelete(id, name) {
+      this.postToDelete = {
+        id,
+        name
+      };
       this.deleteDialogVisible = true;
     },
     deletePost() {
-      if (this.postIdToDelete) {
-        const result = store.deletePost(this.type, this.postIdToDelete);
-        if (result) {
-          this.$message.success('删除成功');
-          this.$emit('refresh'); // 通知父组件刷新数据
-        } else {
-          this.$message.error('删除失败');
-        }
+      const result = store.deletePost(this.type, this.postToDelete.id);
+      if (result) {
+        this.$message.success('帖子删除成功');
         this.deleteDialogVisible = false;
-        this.postIdToDelete = null;
+        this.$emit('refresh'); // 通知父组件刷新数据
+      } else {
+        this.$message.error('删除失败');
       }
     }
   }
@@ -92,43 +92,50 @@ export default {
 
 <style scoped>
 .post-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
 .post-card {
+  margin-bottom: 20px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
 }
 
-.post-info {
-  margin-bottom: 15px;
+.post-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #303133;
 }
 
-.rating-display {
+.post-rating {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
+  margin-bottom: 5px;
 }
 
-.review-count {
+.rating-label {
+  margin-right: 5px;
+  color: #606266;
+}
+
+.rating-value {
+  margin-left: 5px;
+  color: #F56C6C;
+  font-weight: bold;
+}
+
+.post-reviews {
+  margin-bottom: 15px;
   color: #909399;
-  font-size: 14px;
 }
 
-.buttons {
+.post-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
-  flex-wrap: wrap;
 }
 
-.buttons .el-button {
-  margin-bottom: 5px;
+.empty-message {
+  margin: 40px 0;
 }
 </style>

@@ -4,12 +4,12 @@
       <h1>外卖评分</h1>
       <p>在这里查看和评价校内外卖</p>
       <el-button type="primary" @click="showAddForm = true" class="add-button">
-        <i class="el-icon-plus"></i> 添加新外卖
+        <i class="el-icon-plus"></i> 添加新外卖帖子
       </el-button>
     </div>
     
     <!-- 添加新外卖表单 -->
-    <el-dialog title="添加新外卖" v-model="showAddForm" width="500px">
+    <el-dialog title="添加新外卖帖子" v-model="showAddForm" width="500px">
       <el-form :model="newPost" :rules="rules" ref="addForm" label-width="80px">
         <el-form-item label="外卖名称" prop="name">
           <el-input v-model="newPost.name" placeholder="请输入外卖名称"></el-input>
@@ -25,7 +25,7 @@
     
     <div class="empty-state" v-if="foods.length === 0">
       <el-empty description="暂无外卖数据" />
-      <el-button type="primary" @click="showAddForm = true">添加新外卖</el-button>
+      <el-button type="primary" @click="showAddForm = true">添加新外卖帖子</el-button>
     </div>
   </div>
 </template>

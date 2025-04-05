@@ -7,12 +7,7 @@
           <p>在这里，您可以查看和评价校园内的课程、外卖和生活用品</p>
           <div class="stats">
             <div class="stat-item">
-              <span class="stat-value">{{ postsCount }}</span>
-              <span class="stat-label">评分对象</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-value">{{ reviewsCount }}</span>
-              <span class="stat-label">用户评价</span>
+              <span class="stat-value">帖子数：{{ categoriesCount }}</span>
             </div>
           </div>
         </div>
@@ -126,8 +121,7 @@ export default {
     return {
       currentSort: 'newest',
       sortedCategories: [],
-      postsCount: 0,
-      reviewsCount: 0
+      categoriesCount: 0
     }
   },
   created() {
@@ -139,8 +133,7 @@ export default {
       this.changeSortMethod(this.currentSort);
       
       // 获取统计数据
-      this.postsCount = store.getPostsCount();
-      this.reviewsCount = store.getReviewsCount();
+      this.categoriesCount = store.getCategoriesCount();
     },
     changeSortMethod(sortMethod) {
       switch(sortMethod) {

@@ -198,20 +198,28 @@ const getPostById = (type, id) => {
 
 // 添加新的帖子类型
 const addPostType = (type) => {
-  if (!state.posts[type]) {
-    state.posts[type] = []
-    
-    state.categoryMeta[type] = {
-      name: type,
-      createdAt: new Date().toISOString(),
-      totalReviews: 0,
-      avgRating: 0
-    }
-    
-    saveData()
-    return true
+  // 检查类型是否已存在
+  if (state.posts[type]) {
+    return { success: false, message: '该类别已存在' };
   }
-  return false
+  
+  // 检查是否为保留类型名称
+  if (['course', 'food', 'goods'].includes(type.toLowerCase())) {
+    return { success: false, message: '不能使用系统保留的类别名称' };
+  }
+  
+  // 创建新类别
+  state.posts[type] = [];
+  
+  state.categoryMeta[type] = {
+    name: type,
+    createdAt: new Date().toISOString(),
+    totalReviews: 0,
+    avgRating: 0
+  };
+  
+  saveData();
+  return { success: true, message: '添加类别成功' };
 }
 
 // 获取所有帖子的数量
@@ -320,6 +328,11 @@ const getCategoriesByHighestRating = (limit = 3) => {
     .slice(0, limit)
 }
 
+// 获取所有分类的数量
+const getCategoriesCount = () => {
+  return Object.keys(state.posts).length;
+}
+
 // 初始化时更新所有类别元数据
 updateCategoryMeta()
 
@@ -340,5 +353,6 @@ export default {
   getCategoriesByMostReviews,
   getCategoriesByHighestRating,
   deletePost,
-  deleteCategory
+  deleteCategory,
+  getCategoriesCount
 }

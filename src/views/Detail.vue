@@ -1,90 +1,85 @@
 <template>
   <div class="detail-page">
-    <div v-if="post" class="post-detail">
-      <el-page-header @back="goBack" :content="post.name" />
+    <div v-if="post" class="post-content">
+      <div class="page-header">
+        <h1>{{ post.name }}</h1>
+        <div class="category-info">
+          <el-tag :type="getCategoryType">{{ getCategory }}</el-tag>
+        </div>
+      </div>
       
-      <el-card class="post-info-card">
-        <h2>{{ post.name }}</h2>
-        <div class="rating-info">
-          <el-rate
-            v-model="post.avgRating"
-            disabled
-            show-score
-            text-color="#ff9900"
-            score-template="{value} 分"
-          ></el-rate>
+      <el-card class="rating-card">
+        <div class="rating-header">
+          <h2>评分概览</h2>
           <span class="review-count">{{ post.reviews.length }} 条评价</span>
+        </div>
+        
+        <div class="rating-summary">
+          <div class="average-rating">
+            <span class="rating-label">平均评分</span>
+            <div class="rating-score">{{ post.avgRating.toFixed(1) }}</div>
+            <el-rate v-model="post.avgRating" disabled></el-rate>
+          </div>
         </div>
       </el-card>
       
-      <!-- 评分表单 -->
-      <el-card class="rating-form-card" v-if="showRatingForm">
-        <h3>添加评价</h3>
-        <el-form :model="ratingForm" label-width="80px">
-          <el-form-item label="您的评分">
-            <el-rate
-              v-model="ratingForm.rating"
-              :max="5"
-              show-score
-              :colors="['#99A9BF', '#F7BA2A', '#FF9900']"
-            ></el-rate>
+      <!-- 添加评价区域 -->
+      <el-card class="add-review-card">
+        <div class="card-header">
+          <h2>添加评价</h2>
+        </div>
+        
+        <el-form :model="reviewForm" :rules="rules" ref="reviewForm" label-width="100px">
+          <el-form-item label="评分" prop="rating">
+            <el-rate v-model="reviewForm.rating" :texts="ratingTexts" show-text></el-rate>
           </el-form-item>
-          <el-form-item label="您的昵称">
-            <el-input v-model="ratingForm.username" placeholder="匿名"></el-input>
-          </el-form-item>
-          <el-form-item label="评价内容">
-            <el-input
-              type="textarea"
-              v-model="ratingForm.comment"
-              :rows="4"
-              placeholder="请输入您的评价内容"
+          <el-form-item label="评价内容" prop="content">
+            <el-input 
+              type="textarea" 
+              v-model="reviewForm.content" 
+              rows="4"
+              placeholder="请输入您对这个帖子的评价..."
             ></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitRating">提交评价</el-button>
-            <el-button @click="showRatingForm = false">取消</el-button>
+            <el-button type="primary" @click="submitReview">提交评价</el-button>
           </el-form-item>
         </el-form>
       </el-card>
       
-      <!-- 评论列表 -->
-      <div class="reviews-section">
-        <div class="reviews-header">
-          <h3>用户评价 ({{ post.reviews.length }})</h3>
-          <el-button type="primary" @click="showRatingForm = true" v-if="!showRatingForm">
-            添加评价
-          </el-button>
+      <!-- 评价列表 -->
+      <el-card class="reviews-card" v-if="post.reviews.length > 0">
+        <div class="card-header">
+          <h2>全部评价</h2>
         </div>
         
-        <el-empty description="暂无评价" v-if="post.reviews.length === 0"></el-empty>
-        
-        <el-timeline v-else>
-          <el-timeline-item
-            v-for="review in post.reviews"
-            :key="review.id"
-            :timestamp="formatDate(review.date)"
-            placement="top"
-          >
-            <el-card>
-              <div class="review-header">
-                <span class="reviewer">{{ review.username || '匿名用户' }}</span>
-                <el-rate
-                  v-model="review.rating"
-                  disabled
-                  show-score
-                  text-color="#ff9900"
-                ></el-rate>
-              </div>
-              <div class="review-content">
-                {{ review.comment }}
-              </div>
-            </el-card>
-          </el-timeline-item>
-        </el-timeline>
+        <div class="reviews-list">
+          <div v-for="(review, index) in post.reviews" :key="index" class="review-item">
+            <div class="review-header">
+              <el-rate v-model="review.rating" disabled></el-rate>
+              <span class="review-date">{{ formatDate(review.date) }}</span>
+            </div>
+            <div class="review-content">{{ review.content }}</div>
+          </div>
+        </div>
+      </el-card>
+      
+      <el-card class="no-reviews-card" v-else>
+        <el-empty description="暂无评价" />
+        <div class="empty-action">
+          <p>成为第一个评价者，分享您的意见！</p>
+        </div>
+      </el-card>
+      
+      <div class="page-actions">
+        <el-button @click="goBack">返回</el-button>
       </div>
     </div>
     
-    <el-empty description="帖子不存在" v-else></el-empty>
+    <div v-else class="not-found">
+      <el-empty description="帖子不存在"></el-empty>
+      <el-button @click="goBack">返回</el-button>
+    </div>
   </div>
 </template>
 
@@ -96,20 +91,23 @@ export default {
   data() {
     return {
       post: null,
-      showRatingForm: false,
-      ratingForm: {
+      reviewForm: {
         rating: 0,
-        username: '',
-        comment: ''
-      }
+        content: ''
+      },
+      rules: {
+        rating: [
+          { required: true, message: '请给帖子评分', trigger: 'change' }
+        ],
+        content: [
+          { required: true, message: '请输入评价内容', trigger: 'blur' }
+        ]
+      },
+      ratingTexts: ['很差', '较差', '一般', '较好', '很好']
     }
   },
   created() {
     this.loadPost();
-    // 如果URL参数中有rate=true，自动显示评分表单
-    if (this.$route.query.rate === 'true') {
-      this.showRatingForm = true;
-    }
   },
   methods: {
     loadPost() {
@@ -119,36 +117,36 @@ export default {
     goBack() {
       this.$router.back();
     },
-    submitRating() {
-      if (this.ratingForm.rating === 0) {
-        this.$message.warning('请先进行评分');
-        return;
-      }
-      
-      const { type, id } = this.$route.params;
-      store.addReview(
-        type,
-        parseInt(id),
-        this.ratingForm.rating,
-        this.ratingForm.comment,
-        this.ratingForm.username || '匿名用户'
-      );
-      
-      // 重置表单
-      this.ratingForm = {
-        rating: 0,
-        username: '',
-        comment: ''
-      };
-      
-      this.showRatingForm = false;
-      this.loadPost(); // 重新加载帖子数据
-      
-      this.$message.success('评价提交成功');
+    submitReview() {
+      this.$refs.reviewForm.validate((valid) => {
+        if (!valid) return;
+
+        const { type, id } = this.$route.params;
+        store.addReview(
+          type,
+          parseInt(id),
+          this.reviewForm.rating,
+          this.reviewForm.content
+        );
+
+        this.reviewForm = {
+          rating: 0,
+          content: ''
+        };
+
+        this.loadPost();
+        this.$message.success('评价提交成功');
+      });
     },
     formatDate(dateString) {
       const date = new Date(dateString);
       return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    },
+    getCategoryType() {
+      return this.post.category === '热门' ? 'success' : 'info';
+    },
+    getCategory() {
+      return this.post.category || '未知分类';
     }
   }
 }
@@ -160,33 +158,63 @@ export default {
   margin: 0 auto;
 }
 
-.post-info-card {
-  margin: 20px 0;
-}
-
-.rating-info {
-  display: flex;
-  align-items: center;
-  margin-top: 15px;
-}
-
-.review-count {
-  margin-left: 15px;
-  color: #909399;
-}
-
-.rating-form-card {
-  margin: 20px 0;
-}
-
-.reviews-section {
-  margin-top: 30px;
-}
-
-.reviews-header {
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
+}
+
+.category-info {
+  margin-left: 10px;
+}
+
+.rating-card {
+  margin: 20px 0;
+}
+
+.rating-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rating-summary {
+  margin-top: 15px;
+}
+
+.average-rating {
+  display: flex;
+  align-items: center;
+}
+
+.rating-label {
+  margin-right: 10px;
+}
+
+.rating-score {
+  font-size: 24px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.add-review-card {
+  margin: 20px 0;
+}
+
+.card-header {
+  margin-bottom: 10px;
+}
+
+.reviews-card {
+  margin-top: 30px;
+}
+
+.reviews-list {
+  margin-top: 10px;
+}
+
+.review-item {
   margin-bottom: 20px;
 }
 
@@ -194,17 +222,29 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
 }
 
-.reviewer {
-  font-weight: bold;
-  color: #409EFF;
+.review-date {
+  color: #909399;
 }
 
 .review-content {
   margin-top: 10px;
   white-space: pre-line;
   color: #606266;
+}
+
+.no-reviews-card {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.empty-action {
+  margin-top: 10px;
+}
+
+.page-actions {
+  margin-top: 20px;
+  text-align: center;
 }
 </style>

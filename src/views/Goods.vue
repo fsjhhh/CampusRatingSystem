@@ -4,12 +4,12 @@
       <h1>生活用品评分</h1>
       <p>在这里查看和评价校园内的生活用品</p>
       <el-button type="primary" @click="showAddForm = true" class="add-button">
-        <i class="el-icon-plus"></i> 添加新生活用品
+        <i class="el-icon-plus"></i> 添加新生活用品帖子
       </el-button>
     </div>
     
     <!-- 添加新生活用品表单 -->
-    <el-dialog title="添加新生活用品" v-model="showAddForm" width="500px">
+    <el-dialog title="添加新生活用品帖子" v-model="showAddForm" width="500px">
       <el-form :model="newPost" :rules="rules" ref="addForm" label-width="100px">
         <el-form-item label="生活用品名称" prop="name">
           <el-input v-model="newPost.name" placeholder="请输入生活用品名称"></el-input>
@@ -25,7 +25,7 @@
     
     <div class="empty-state" v-if="goods.length === 0">
       <el-empty description="暂无生活用品数据" />
-      <el-button type="primary" @click="showAddForm = true">添加新生活用品</el-button>
+      <el-button type="primary" @click="showAddForm = true">添加新生活用品帖子</el-button>
     </div>
   </div>
 </template>

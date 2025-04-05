@@ -1,41 +1,61 @@
 <template>
   <div class="add-post-page">
     <div class="page-header">
-      <h1>添加新评分对象</h1>
-      <p>您可以在这里添加新的评分对象</p>
+      <h1>添加新评分帖子</h1>
+      <p>您可以在这里添加新的评分帖子或自定义类别</p>
     </div>
     
-    <el-card class="form-card">
-      <el-form :model="form" label-width="120px" :rules="rules" ref="addPostForm">
-        <el-form-item label="类型" prop="type">
-          <el-radio-group v-model="form.type">
-            <el-radio label="course">课程</el-radio>
-            <el-radio label="food">外卖</el-radio>
-            <el-radio label="goods">生活用品</el-radio>
-            <el-radio label="custom">自定义类别</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        
-        <el-form-item label="自定义类别" prop="customType" v-if="form.type === 'custom'">
-          <el-input v-model="form.customType" placeholder="输入新的类别名称"></el-input>
-        </el-form-item>
-        
-        <el-form-item label="名称" prop="name">
-          <el-input v-model="form.name" placeholder="输入评分对象名称"></el-input>
-        </el-form-item>
-        
-        <el-form-item>
-          <el-button type="primary" @click="submitForm">添加</el-button>
-          <el-button @click="resetForm">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+    <el-tabs v-model="activeTab">
+      <el-tab-pane label="添加帖子" name="addPost">
+        <el-card class="form-card">
+          <el-form :model="postForm" label-width="120px" :rules="postRules" ref="addPostForm">
+            <el-form-item label="类型" prop="type">
+              <el-radio-group v-model="postForm.type">
+                <el-radio label="course">课程</el-radio>
+                <el-radio label="food">外卖</el-radio>
+                <el-radio label="goods">生活用品</el-radio>
+                <el-radio 
+                  v-for="customType in customTypes" 
+                  :key="customType.type" 
+                  :label="customType.type">
+                  {{ customType.type }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+            
+            <el-form-item label="帖子名称" prop="name">
+              <el-input v-model="postForm.name" placeholder="输入评分帖子名称"></el-input>
+            </el-form-item>
+            
+            <el-form-item>
+              <el-button type="primary" @click="submitPostForm">添加帖子</el-button>
+              <el-button @click="resetPostForm">重置</el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </el-tab-pane>
+      
+      <el-tab-pane label="添加自定义类别" name="addCategory">
+        <el-card class="form-card">
+          <el-form :model="categoryForm" label-width="120px" :rules="categoryRules" ref="addCategoryForm">
+            <el-form-item label="类别名称" prop="name">
+              <el-input v-model="categoryForm.name" placeholder="输入新的类别名称"></el-input>
+            </el-form-item>
+            
+            <el-form-item>
+              <el-button type="primary" @click="submitCategoryForm">添加类别</el-button>
+              <el-button @click="resetCategoryForm">重置</el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </el-tab-pane>
+    </el-tabs>
     
     <el-card class="post-types-card" v-if="hasCustomTypes">
       <h3>自定义分类列表</h3>
       <el-table :data="customTypes" style="width: 100%">
         <el-table-column prop="type" label="分类名称"></el-table-column>
-        <el-table-column prop="count" label="对象数量"></el-table-column>
+        <el-table-column prop="count" label="帖子数量"></el-table-column>
         <el-table-column label="操作">
           <template #default="scope">
             <el-button size="small" @click="viewCategory(scope.row.type)">查看</el-button>
@@ -53,20 +73,25 @@ export default {
   name: 'AddPostView',
   data() {
     return {
-      form: {
+      activeTab: 'addPost',
+      postForm: {
         type: 'course',
-        customType: '',
         name: ''
       },
-      rules: {
+      categoryForm: {
+        name: ''
+      },
+      postRules: {
         type: [
           { required: true, message: '请选择类型', trigger: 'change' }
         ],
-        customType: [
-          { required: true, message: '请输入自定义类别名称', trigger: 'blur' }
-        ],
         name: [
-          { required: true, message: '请输入评分对象名称', trigger: 'blur' }
+          { required: true, message: '请输入评分帖子名称', trigger: 'blur' }
+        ]
+      },
+      categoryRules: {
+        name: [
+          { required: true, message: '请输入自定义类别名称', trigger: 'blur' }
         ]
       }
     }
@@ -87,32 +112,30 @@ export default {
     }
   },
   methods: {
-    submitForm() {
+    submitPostForm() {
       this.$refs.addPostForm.validate(valid => {
         if (valid) {
-          const type = this.form.type === 'custom' ? this.form.customType : this.form.type;
+          const type = this.postForm.type;
           
-          // 如果是自定义类型，先添加类型
-          if (this.form.type === 'custom') {
-            store.addPostType(type);
-          }
-          
-          // 添加评分对象
-          const result = store.addPost(type, this.form.name);
+          // 添加评分帖子
+          const result = store.addPost(type, this.postForm.name);
           
           if (result.success) {
-            this.$message.success('添加成功');
-            this.resetForm();
+            this.$message.success('添加帖子成功');
+            this.resetPostForm();
             
-            // 如果不是自定义类型，跳转到对应类型页面
-            if (this.form.type !== 'custom') {
-              const routeMap = {
-                course: '/course',
-                food: '/food',
-                goods: '/goods'
-              };
-              
-              this.$router.push(routeMap[this.form.type]);
+            // 根据类型跳转到对应页面
+            const routeMap = {
+              course: '/course',
+              food: '/food',
+              goods: '/goods'
+            };
+            
+            if (routeMap[type]) {
+              this.$router.push(routeMap[type]);
+            } else {
+              // 自定义类型
+              this.$router.push(`/custom?type=${type}`);
             }
           } else {
             this.$message.error(result.message);
@@ -122,12 +145,31 @@ export default {
         }
       });
     },
-    resetForm() {
+    submitCategoryForm() {
+      this.$refs.addCategoryForm.validate(valid => {
+        if (valid) {
+          // 添加自定义类别
+          const typeName = this.categoryForm.name;
+          const result = store.addPostType(typeName);
+          
+          if (result.success) {
+            this.$message.success('添加类别成功');
+            this.resetCategoryForm();
+          } else {
+            this.$message.error(result.message || '类别已存在');
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    resetPostForm() {
       this.$refs.addPostForm.resetFields();
     },
+    resetCategoryForm() {
+      this.$refs.addCategoryForm.resetFields();
+    },
     viewCategory(type) {
-      // 由于是自定义类型，需要创建一个动态路由
-      // 这里我们可以使用查询参数来传递类型
       this.$router.push(`/custom?type=${type}`);
     }
   }
