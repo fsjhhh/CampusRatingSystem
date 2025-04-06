@@ -180,10 +180,11 @@ export default {
       return '#F56C6C'; // 低分红色
     },
     // 根据评分获取标签类型
-    getRatingTagType(rating) {
-      if (rating >= 4) return 'success'; // 高分
-      if (rating >= 3) return 'warning'; // 中分
-      return 'danger'; // 低分
+    getRatingTagType() {
+      // 随机返回一种标签颜色，而不是根据评分返回固定颜色
+      const colors = ['success', 'info', 'warning', 'danger', 'primary'];
+      const randomIndex = Math.floor(Math.random() * colors.length);
+      return colors[randomIndex];
     },
     // 查看评分详细分析
     viewRatingDetails(type) {

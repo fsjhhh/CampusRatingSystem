@@ -4,7 +4,7 @@
       <div class="page-header">
         <h1>{{ post.name }}</h1>
         <div class="category-info">
-          <el-tag :type="getCategoryType">{{ getCategory }}</el-tag>
+          <el-tag :type="getCategoryType()">{{ getCategory() }}</el-tag>
         </div>
       </div>
       
@@ -18,7 +18,7 @@
           <div class="average-rating">
             <span class="rating-label">平均评分</span>
             <div class="rating-score">{{ post.avgRating.toFixed(1) }}</div>
-            <el-rate v-model="post.avgRating" disabled></el-rate>
+            <el-rate :value="post.avgRating" disabled :colors="['#99A9BF', '#F7BA2A', '#FF9900']"></el-rate>
           </div>
         </div>
       </el-card>
@@ -56,7 +56,7 @@
         <div class="reviews-list">
           <div v-for="(review, index) in post.reviews" :key="index" class="review-item">
             <div class="review-header">
-              <el-rate v-model="review.rating" disabled></el-rate>
+              <el-rate :value="review.rating" disabled :colors="['#99A9BF', '#F7BA2A', '#FF9900']"></el-rate>
               <span class="review-date">{{ formatDate(review.date) }}</span>
             </div>
             <div class="review-content">{{ review.content }}</div>
@@ -143,10 +143,30 @@ export default {
       return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     },
     getCategoryType() {
-      return this.post.category === '热门' ? 'success' : 'info';
+      // 随机返回一种标签颜色
+      const colors = ['success', 'info', 'warning', 'danger', 'primary'];
+      const randomIndex = Math.floor(Math.random() * colors.length);
+      return colors[randomIndex];
     },
     getCategory() {
-      return this.post.category || '未知分类';
+      const categoryNames = {
+        'food': '外卖',
+        'goods': '商品',
+        'course': '课程'
+      };
+      
+      // 如果是预定义的分类，直接返回对应的名称
+      if (categoryNames[this.post.type]) {
+        return categoryNames[this.post.type];
+      }
+      
+      // 如果是自定义分类，从store中获取分类元数据的名称
+      if (store.state.categoryMeta[this.post.type]) {
+        return store.state.categoryMeta[this.post.type].name || this.post.type;
+      }
+      
+      // 如果都没找到，返回原始类型名称而不是'未知分类'
+      return this.post.type;
     }
   }
 }

@@ -2,7 +2,7 @@
   <div class="post-list">
     <div v-if="posts.length > 0">
       <el-row :gutter="20">
-        <el-col :xs="24" :sm="8" v-for="(post, index) in posts" :key="`${type}-${post.id}`">
+        <el-col :xs="24" :sm="8" v-for="post in posts" :key="`${type}-${post.id}`">
           <el-card shadow="hover" class="post-card">
             <div class="post-title">{{ post.name }}</div>
             <div class="post-rating">

@@ -193,7 +193,14 @@ const getPostsByType = (type) => {
 
 // 获取特定帖子详情
 const getPostById = (type, id) => {
-  return state.posts[type]?.find(p => p.id === id) || null
+  const post = state.posts[type]?.find(p => p.id === id) || null
+  if (post) {
+    return {
+      ...post,
+      type
+    }
+  }
+  return null
 }
 
 // 添加新的帖子类型
