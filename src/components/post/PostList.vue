@@ -7,7 +7,11 @@
             <div class="post-title">{{ post.name }}</div>
             <div class="post-rating">
               <span class="rating-label">平均评分：</span>
-              <el-rate v-model="post.avgRating" disabled></el-rate>
+              <el-rate 
+                :model-value="post.avgRating" 
+                disabled 
+                size="default"
+              ></el-rate>
               <span class="rating-value">{{ post.avgRating.toFixed(1) }}</span>
             </div>
             <div class="post-reviews">

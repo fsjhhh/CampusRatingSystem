@@ -18,7 +18,12 @@
           <div class="average-rating">
             <span class="rating-label">平均评分</span>
             <div class="rating-score">{{ post.avgRating.toFixed(1) }}</div>
-            <el-rate :value="post.avgRating" disabled :colors="['#99A9BF', '#F7BA2A', '#FF9900']"></el-rate>
+            <el-rate 
+              :model-value="post.avgRating" 
+              disabled 
+              :max="5"
+              text-color="#ff9900"
+            ></el-rate>
           </div>
         </div>
       </el-card>
@@ -31,7 +36,12 @@
         
         <el-form :model="reviewForm" :rules="rules" ref="reviewForm" label-width="100px">
           <el-form-item label="评分" prop="rating">
-            <el-rate v-model="reviewForm.rating" :texts="ratingTexts" show-text></el-rate>
+            <el-rate 
+              v-model="reviewForm.rating" 
+              :texts="ratingTexts" 
+              show-text
+              :max="5"
+            ></el-rate>
           </el-form-item>
           <el-form-item label="评价内容" prop="content">
             <el-input 
@@ -56,10 +66,15 @@
         <div class="reviews-list">
           <div v-for="(review, index) in post.reviews" :key="index" class="review-item">
             <div class="review-header">
-              <el-rate :value="review.rating" disabled :colors="['#99A9BF', '#F7BA2A', '#FF9900']"></el-rate>
+              <el-rate 
+                :model-value="review.rating" 
+                disabled 
+                :max="5"
+                text-color="#ff9900"
+              ></el-rate>
               <span class="review-date">{{ formatDate(review.date) }}</span>
             </div>
-            <div class="review-content">{{ review.content }}</div>
+            <div class="review-content">{{ review.comment }}</div>
           </div>
         </div>
       </el-card>
