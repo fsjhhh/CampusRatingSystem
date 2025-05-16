@@ -11,8 +11,8 @@
           active-text-color="#ffd04b">
           <el-menu-item index="/">首页</el-menu-item>
           <el-menu-item index="/course">课程评分</el-menu-item>
-          <el-menu-item index="/food">外卖评分</el-menu-item>
-          <el-menu-item index="/goods">生活用品评分</el-menu-item>
+          <el-menu-item index="/food">食堂评分</el-menu-item>
+          <el-menu-item index="/stores">商店评分</el-menu-item>
           
           <!-- 自定义分类菜单 -->
           <el-sub-menu index="custom" v-if="customTypes.length > 0">
@@ -103,7 +103,7 @@ export default {
   computed: {
     customTypes() {
       return Object.keys(store.state.posts).filter(type => 
-        !['course', 'food', 'goods'].includes(type)
+        !['course', 'food', 'stores'].includes(type)
       );
     },
     isAddPostRoute() {

@@ -165,8 +165,8 @@ export default {
     },
     getCategory() {
       const categoryNames = {
-        'food': '外卖',
-        'goods': '商品',
+        'food': '食堂',
+        'stores': '商品',
         'course': '课程'
       };
       

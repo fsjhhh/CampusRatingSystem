@@ -12,8 +12,8 @@
             <el-form-item label="类型" prop="type">
               <el-radio-group v-model="postForm.type">
                 <el-radio label="course">课程</el-radio>
-                <el-radio label="food">外卖</el-radio>
-                <el-radio label="goods">生活用品</el-radio>
+                <el-radio label="food">食堂</el-radio>
+                <el-radio label="stores">商店</el-radio>
                 <el-radio 
                   v-for="customType in customTypes" 
                   :key="customType.type" 
@@ -99,7 +99,7 @@ export default {
   computed: {
     customTypes() {
       const types = Object.keys(store.state.posts).filter(type => 
-        !['course', 'food', 'goods'].includes(type)
+        !['course', 'food', 'stores'].includes(type)
       );
       
       return types.map(type => ({
@@ -128,7 +128,7 @@ export default {
             const routeMap = {
               course: '/course',
               food: '/food',
-              goods: '/goods'
+              stores: '/stores'
             };
             
             if (routeMap[type]) {

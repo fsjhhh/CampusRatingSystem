@@ -3,16 +3,16 @@ import { reactive } from 'vue'
 // 初始数据
 const initialPosts = {
   course: [
-    { id: 1, name: '语文', avgRating: 0, reviews: [], createdAt: new Date('2025-03-01').toISOString() },
-    { id: 2, name: '数学', avgRating: 0, reviews: [], createdAt: new Date('2025-03-05').toISOString() },
-    { id: 3, name: '英语', avgRating: 0, reviews: [], createdAt: new Date('2025-03-10').toISOString() }
+    { id: 1, name: '大学语文', avgRating: 0, reviews: [], createdAt: new Date('2025-03-01').toISOString() },
+    { id: 2, name: '高等数学', avgRating: 0, reviews: [], createdAt: new Date('2025-03-05').toISOString() },
+    { id: 3, name: '大学英语', avgRating: 0, reviews: [], createdAt: new Date('2025-03-10').toISOString() }
   ],
   food: [
     { id: 1, name: '食堂一楼', avgRating: 0, reviews: [], createdAt: new Date('2025-03-15').toISOString() },
     { id: 2, name: '食堂二楼', avgRating: 0, reviews: [], createdAt: new Date('2025-03-20').toISOString() },
-    { id: 3, name: '校外外卖', avgRating: 0, reviews: [], createdAt: new Date('2025-03-25').toISOString() }
+    { id: 3, name: '食堂三楼', avgRating: 0, reviews: [], createdAt: new Date('2025-03-25').toISOString() }
   ],
-  goods: [
+  stores: [
     { id: 1, name: '文具店', avgRating: 0, reviews: [], createdAt: new Date('2025-03-28').toISOString() },
     { id: 2, name: '超市', avgRating: 0, reviews: [], createdAt: new Date('2025-04-01').toISOString() },
     { id: 3, name: '日用品店', avgRating: 0, reviews: [], createdAt: new Date('2025-04-03').toISOString() }
@@ -28,13 +28,13 @@ const initialCategoryMeta = {
     avgRating: 0
   },
   food: { 
-    name: '外卖', 
+    name: '食堂', 
     createdAt: new Date('2025-02-22').toISOString(),
     totalReviews: 0,
     avgRating: 0
   },
-  goods: { 
-    name: '生活用品', 
+  stores: { 
+    name: '商店', 
     createdAt: new Date('2025-02-25').toISOString(),
     totalReviews: 0,
     avgRating: 0
@@ -176,7 +176,7 @@ const deletePost = (type, id) => {
 
 // 删除整个类别
 const deleteCategory = (type) => {
-  if (state.posts[type] && !['course', 'food', 'goods'].includes(type)) {
+  if (state.posts[type] && !['course', 'food', 'stores'].includes(type)) {
     delete state.posts[type];
     delete state.categoryMeta[type];
     
@@ -211,8 +211,12 @@ const addPostType = (type) => {
   }
   
   // 检查是否为保留类型名称
-  if (['course', 'food', 'goods'].includes(type.toLowerCase())) {
-    return { success: false, message: '不能使用系统保留的类别名称' };
+  if (['course', 'food', 'stores'].includes(type.toLowerCase())) {
+    return { success: false, message: '该类别已存在' };
+  }
+
+  if (['课程', '食堂', '商店'].includes(type.toLowerCase())) {
+    return { success: false, message: '该类别已存在' };
   }
   
   // 创建新类别

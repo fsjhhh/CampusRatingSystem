@@ -4,7 +4,7 @@
       <el-col :span="24">
         <div class="welcome-banner">
           <h1>欢迎使用校园评分系统</h1>
-          <p>在这里，您可以查看和评价校园内的课程、外卖和生活用品</p>
+          <p>在这里，您可以查看和评价校园内的多样的评价</p>
           <div class="stats">
             <div class="stat-item">
               <span class="stat-value">帖子数：{{ categoriesCount }}</span>
@@ -156,11 +156,11 @@ export default {
     },
     viewCategoryDetail(type) {
       // 处理默认类别
-      if (['course', 'food', 'goods'].includes(type)) {
+      if (['course', 'food', 'stores'].includes(type)) {
         const routeMap = {
           'course': '/course',
           'food': '/food',
-          'goods': '/goods'
+          'stores': '/stores'
         };
         this.$router.push(routeMap[type]);
       } else {
