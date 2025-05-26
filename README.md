@@ -1,24 +1,63 @@
-# web
+# 校园评分系统
 
-## Project setup
+## 项目简介
+这是一个基于Vue.js开发的校园评分系统，用户可以对课程、食堂、商店等进行评分和评价，也可以自定义评分类别。该系统提供了评论和评分功能，支持图片上传，让用户可以更直观地表达自己的意见。
+
+## 主要功能
+- 对课程、食堂、商店进行评分和评价
+- 支持自定义评分类别
+- 评论支持图片上传（最多3张）
+- 评分统计和展示
+- 全文搜索功能
+
+## 项目设置
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### 开发环境编译和热重载
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### 生产环境编译和压缩
 ```
 npm run build
 ```
 
-### Lints and fixes files
+### 代码检查和修复
 ```
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 技术栈
+- Vue.js 3
+- Vue Router
+- Element Plus
+- LocalStorage (数据存储)
+
+## 项目结构
+```
+src/
+  ├── assets/       # 静态资源文件
+  ├── components/   # 公共组件
+  │   └── post/     # 帖子相关组件
+  ├── router/       # 路由配置
+  ├── store/        # 数据存储
+  ├── views/        # 页面视图
+  ├── App.vue       # 主应用组件
+  └── main.js       # 应用入口
+```
+
+## 使用指南
+1. 首页展示系统概览和最新评分
+2. 通过顶部导航可进入不同的评分类别
+3. 点击"添加新评分对象"可创建新的评分对象
+4. 在详情页可查看评价并添加自己的评分和评论
+
+## 版本信息
+- 当前版本: 1.0.0
+- 最后更新: 2025年5月26日
+
+## 自定义配置
+查看 [Vue CLI配置参考](https://cli.vuejs.org/config/).
