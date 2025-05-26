@@ -134,7 +134,7 @@ const addPost = (type, name) => {
 }
 
 // 添加评论和评分
-const addReview = (type, id, rating, comment, username = '匿名用户') => {
+const addReview = (type, id, rating, comment, username = '匿名用户', images = []) => {
   const post = state.posts[type].find(p => p.id === id)
   
   if (post) {
@@ -143,6 +143,7 @@ const addReview = (type, id, rating, comment, username = '匿名用户') => {
       username,
       rating,
       comment,
+      images, // 添加图片数据
       date: new Date().toISOString()
     })
     

@@ -51,6 +51,25 @@
               placeholder="请输入您对这个帖子的评价..."
             ></el-input>
           </el-form-item>
+          <el-form-item label="上传图片">
+            <el-upload
+              class="upload-demo"
+              action="#"
+              :auto-upload="false"
+              :limit="3"
+              :on-change="handleImageChange"
+              :on-remove="handleImageRemove"
+              :file-list="reviewForm.imageFiles"
+              :http-request="handleUpload"
+              list-type="picture-card">
+              <i class="el-icon-plus"></i>
+              <template #tip>
+                <div class="el-upload__tip">
+                  只能上传jpg/png文件，且不超过2MB
+                </div>
+              </template>
+            </el-upload>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="submitReview">提交评价</el-button>
           </el-form-item>
@@ -75,6 +94,17 @@
               <span class="review-date">{{ formatDate(review.date) }}</span>
             </div>
             <div class="review-content">{{ review.comment }}</div>
+            <!-- 显示评论图片 -->
+            <div class="review-images" v-if="review.images && review.images.length > 0">
+              <el-image 
+                v-for="(image, imgIndex) in review.images" 
+                :key="imgIndex"
+                :src="image"
+                :preview-src-list="review.images"
+                fit="cover"
+                class="review-image"
+              ></el-image>
+            </div>
           </div>
         </div>
       </el-card>
@@ -108,7 +138,9 @@ export default {
       post: null,
       reviewForm: {
         rating: 0,
-        content: ''
+        content: '',
+        imageFiles: [], // 用于存储上传的图片文件列表
+        images: []     // 用于存储转换后的base64图片数据
       },
       rules: {
         rating: [
@@ -132,6 +164,47 @@ export default {
     goBack() {
       this.$router.back();
     },
+    // 处理自定义上传逻辑
+    handleUpload(options) {
+      // 这里不需要实际上传到服务器，只是模拟一个成功的响应
+      if (options.file) {
+        options.onSuccess && options.onSuccess();
+      } else {
+        options.onError && options.onError();
+      }
+    },
+    // 处理图片更改事件
+    handleImageChange(file) {
+      // 验证文件类型和大小
+      const isJPGOrPNG = file.raw.type === 'image/jpeg' || file.raw.type === 'image/png';
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      
+      if (!isJPGOrPNG) {
+        this.$message.error('图片只能是JPG或PNG格式!');
+        return false;
+      }
+      if (!isLt2M) {
+        this.$message.error('图片大小不能超过2MB!');
+        return false;
+      }
+      
+      // 将图片转换为base64格式
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.reviewForm.images.push(e.target.result);
+      };
+      reader.readAsDataURL(file.raw);
+      
+      return true;
+    },
+    // 处理图片移除事件
+    handleImageRemove(file) {
+      const index = this.reviewForm.imageFiles.findIndex(f => f.uid === file.uid);
+      if (index !== -1) {
+        this.reviewForm.imageFiles.splice(index, 1);
+        this.reviewForm.images.splice(index, 1);
+      }
+    },
     submitReview() {
       this.$refs.reviewForm.validate((valid) => {
         if (!valid) return;
@@ -141,12 +214,16 @@ export default {
           type,
           parseInt(id),
           this.reviewForm.rating,
-          this.reviewForm.content
+          this.reviewForm.content,
+          '匿名用户', // 用户名
+          this.reviewForm.images // 传递图片数据
         );
 
         this.reviewForm = {
           rating: 0,
-          content: ''
+          content: '',
+          imageFiles: [],
+          images: []
         };
 
         this.loadPost();
@@ -267,6 +344,22 @@ export default {
   margin-top: 10px;
   white-space: pre-line;
   color: #606266;
+}
+
+.review-images {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.review-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  object-fit: cover;
+  cursor: pointer;
 }
 
 .no-reviews-card {
