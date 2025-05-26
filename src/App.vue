@@ -9,6 +9,9 @@
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b">
+          <el-menu-item index="/" class="logo">
+            <img src="@/assets/logo.png" alt="Logo" />
+          </el-menu-item>
           <el-menu-item index="/">首页</el-menu-item>
           <el-menu-item index="/course">课程评分</el-menu-item>
           <el-menu-item index="/food">食堂评分</el-menu-item>
@@ -179,6 +182,13 @@ body {
   width: 100%;
 }
 
+/* Logo 菜单项样式 */
+.logo.el-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
 .el-main {
   padding: 20px;
   background-color: #f5f7fa;
@@ -190,6 +200,26 @@ body {
   background-color: #545c64;
   color: #fff;
   line-height: 60px;
+}
+
+/* Logo 样式 - 相对大小 */
+.logo img {
+  max-height: 2.5rem;
+  width: auto;
+  vertical-align: middle;
+}
+
+/* 响应式 Logo 样式 */
+@media screen and (max-width: 768px) {
+  .logo img {
+    max-height: 2rem; /* 在小屏幕上稍微缩小 */
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .logo img {
+    max-height: 1.8rem; /* 在更小的屏幕上进一步缩小 */
+  }
 }
 
 .search-container {
