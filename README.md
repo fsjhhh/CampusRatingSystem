@@ -171,7 +171,7 @@ web/
 
 ## 联系方式
 项目维护者: 校园评分系统开发团队
-邮箱: campus-rating@example.com
+邮箱: fsjhhh@qq.com
 
 ## 致谢
 - 感谢所有为项目提供反馈和建议的用户
